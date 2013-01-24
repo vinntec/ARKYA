@@ -1,0 +1,116 @@
+#include "global.h"
+#include "position_module.h"
+#include "movement_module.h"
+#include "sensor_module.h"
+#include "n_strategy.h"
+#include "ncatch_module.h"
+
+/**
+  for visibility issues, this file should only contain the test benches
+  and main task.
+  Anything else is to be included in h files.
+*/
+
+int obst = 0;
+
+inline void print_graph()
+{
+    int i, j = vtab_offset;
+    for(i = j; i != (j +99) % 100 ; i = (i + 1) % 100)
+    {
+        PointOut((i - j + 100) % 100, vtab[i]*100.0/255.0);
+    }
+}
+
+inline void turn_table(int tab[])
+{
+    int i = 0;
+    for(i = 1; i < 100; i++)
+    {
+        tab[i-1] = tab[i];
+    }
+}
+
+
+task visual_test()
+{
+
+    while(1)
+    {
+          Wait(100);
+          ClearScreen();
+
+          /*NumOut(0,10,destination_status);
+          NumOut(30,10, aimed_angle);
+          NumOut(0,20,dest_x);
+          NumOut(30,20,dest_y);  */
+          //NumOut(0,30,motors_state);
+          //NumOut(0,0,pos_orientation_angle)
+
+          NumOut(60,40,pos_y);
+          NumOut(30,40,pos_x);
+          NumOut(0,40,pos_region);
+
+          //NumOut(0,40,calc);
+          //NumOut(0,40,distance);
+          /*
+          NumOut(0,0,obstacle_type);
+          NumOut(30,0,pos_region);
+          NumOut(0,30,obst);
+
+          NumOut(0,10,CapteurUs);
+          NumOut(30,10,CapteurCouleurBall);
+          NumOut(60,10,CapteurCouleurLine);
+
+          NumOut(0,20,obstacle_distance);  */
+          NumOut(30,20,SENSOR_3);
+          NumOut(60,20,SENSOR_1);     /*
+
+          NumOut(0,50, la);
+          NumOut(30,50, pa);
+          NumOut(60,50, ua);*/
+
+          print_graph();
+          NumOut(0,50,obstacle_distance);
+          NumOut(30,50,window);
+          NumOut(60,50,found_ball);
+          
+          NumOut(0,0,MotorRotationCount(ARM_MOTOR));
+          NumOut(0,10,catch_state);
+          NumOut(30,10,catch_cmd);
+          NumOut(60,10,real_catch_cmd);
+    }
+}
+
+task simul_mov()
+{
+     while(1)
+     {
+         /*Wait(2000);
+         
+         catch_cmd = CATCH_CATCH;
+         
+         Wait(2000);
+
+         catch_cmd = CATCH_LETGO;*/
+         
+         look_around();
+         
+         Wait(10000);
+     }
+}
+
+
+task main()
+{
+
+    //Put here all tasks that have to be launched.
+    //Startegy will *not* do this.
+    Precedes(visual_test, do_action, orientation,
+             wheelturns, positioning, simul_mov,
+             orientation_task, sensor_module, //strategy,
+             obstacle_checker, catch_state_machine,
+             catch_task);
+}
+
+

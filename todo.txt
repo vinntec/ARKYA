@@ -1,0 +1,5 @@
+- trouver balles perdues
+- enhance random search
+- module lancer plus fort
+- known positions
+- position information to detect walls while grabbing balls.
